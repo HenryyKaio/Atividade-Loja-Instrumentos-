@@ -6,15 +6,23 @@ class Instrumento {
     protected string $nome;
     protected string $marca;
     protected string $modelo;
-    protected string $tipoSaida;
+    protected int $qtd;
 
-    public function Testar(){
-
-    }
 
     public function __toString()
     {
-        
+        $dados = $this->nome . $this->marca . $this->modelo . "\n";
+        $dados .= " | Preço " . $this->preco . " | Quantidade: " . $this->qtd . "\n";
+        return $dados;
+    }
+
+    public function CalcularTotal($carrinho){
+        $total = 0;
+        foreach($carrinho as $c){
+            $total += $c->getPreco(); 
+        }
+
+        return $total;
     }
     
 
@@ -66,15 +74,4 @@ class Instrumento {
         return $this;
     }
 
-    public function getTipoSaida(): string
-    {
-        return $this->tipoSaida;
-    }
-
-    public function setTipoSaida(string $tipoSaida): self
-    {
-        $this->tipoSaida = $tipoSaida;
-
-        return $this;
-    }
 }
