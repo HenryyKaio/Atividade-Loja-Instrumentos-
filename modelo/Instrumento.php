@@ -18,6 +18,10 @@ class Instrumento
         $this->qtd = $qtd;
     }
 
+    public function removerEstoque($qtd) {
+        $this->qtd -= $qtd;
+    }
+
     public function __toString()
     {
         $dados = $this->nome . $this->marca . $this->modelo . "\n";

@@ -52,7 +52,7 @@ do {
 
         case '2':
             echo "Temos alguns instrumentos no estoque da loja, mas se você quiser um que não temos, você pode encomendar ele\n";
-            echo "O que temos disponível são esses:                                                                            $cliente\n";
+            echo "O que temos disponível são esses:                                                                        " . $cliente . "\n";
             echo "========================================\n";
             echo "       MENU DE INSTRUMENTOS MUSICAIS    \n";
             echo "========================================\n\n";
@@ -79,8 +79,16 @@ do {
 
             echo "========================================\n";
             echo "Qual você quer? (se prefere encomendar algum digite 0): \n";
-            $escolha = readline();
-            
+            $escolhaInst = readline();
+            echo "Quantos você quer?\n";
+            $qtdInst = readline();
+            $instrumentoEncontrado = buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst);
+            if ($instrumentoEncontrado) {
+                adicionarAoCarrinho($carrinho, $instrumentoEncontrado, $qtdInst);
+            }
+
+
+
 
 
             break;
@@ -93,8 +101,11 @@ do {
             $qtd = readline("Quantos você quer comprar?");
             $instrumento = new Instrumento($nome, $marca, $modelo, $preco, $qtd);
             echo "Pronto, seu instrumento foi encomendado e adicionado ao carrinho\n";
-
-            array_push($carrinho, $instrumento);
+            if($saldo < $preco) {
+                echo "Você não tem saldo suficiente para esse pedido\n";
+            } else {
+                array_push($carrinho, $instrumento);
+            }
 
 
             break;
@@ -113,7 +124,7 @@ do {
 
         case '6':
             echo "Muito bem! Vamos finalizar as compras.\n";
-            echo "Suas compras deram um total de R$$instrumento->CalcularTotal($carrinho)\n";
+            echo "Suas compras deram um total de R$" . $instrumento->CalcularTotal($carrinho) . "\n";
             if ($cliente->getSaldo() < $instrumento->CalcularTotal($carrinho)) {
                 echo "Você não tem saldo o suficiente para comprar tudo. Por favor remova algum item da lista.\n";
             } else {
@@ -136,3 +147,39 @@ do {
             break;
     }
 } while ($opcao != 0);
+
+function buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst)
+{
+    foreach ($instrumentos as $categoria => $lista) {
+        foreach ($lista as $i => $instrumento) {
+            // Professor utilizei essa função que compara duas strings ignorando maiusculas ou minúsculas, ela retorna 0 se for verdadeiro
+            // Então se o if for === 0, isto é, o valor e o tipo de dado igual, ele segue com o que está dentro
+            if (strcasecmp($instrumento->getNome(), $escolhaInst)) {
+                if ($instrumento->getQtd() <= $qtdInst) {
+                    $instrumento->removerEstoque($qtdInst);
+                    return $instrumento;
+                } else {
+                    echo "Estoque insuficiente para " . $escolhaInst . ". Disponível: " . $instrumento->getQtd() . "\n";
+                    return null;
+                }
+            }
+        }
+    }
+
+    echo "Instrumento " . $escolhaInst . " não encontrado!\n";
+    return null;
+}
+
+function adicionarAoCarrinho($carrinho, $instrumento, $qtdInst = 1)
+{
+    $nome = $instrumento->getNome();
+
+    if (isset($carrinho[$nome])) {
+        $carrinho[$nome]['quantidade'] += $qtdInst;
+    } else {
+        $carrinho[$nome] = [
+            'item' => $instrumento,
+            'quantidade' => $qtdInst
+        ];
+    }
+}
