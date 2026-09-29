@@ -8,9 +8,13 @@ class Comprador {
 
 
     public function __toString(){
-        $dados = $this->nome . $this->sobrenome . "\n";
+        $dados = $this->nome . "\n";
         $dados .= "Saldo: R$" . $this->saldo . "\n";
         return $dados;
+    }
+
+    public function DebitarSaldo($valorInst, $qtd){
+        $this->saldo -= $valorInst * $qtd;
     }
 
     
@@ -37,20 +41,10 @@ class Comprador {
     /**
      * Get the value of sobrenome
      */
-    public function getSobrenome(): string
-    {
-        return $this->sobrenome;
-    }
 
     /**
      * Set the value of sobrenome
      */
-    public function setSobrenome(string $sobrenome): self
-    {
-        $this->sobrenome = $sobrenome;
-
-        return $this;
-    }
 
     /**
      * Get the value of saldo

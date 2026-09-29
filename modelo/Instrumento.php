@@ -18,8 +18,14 @@ class Instrumento
         $this->qtd = $qtd;
     }
 
-    public function removerEstoque($qtd) {
-        $this->qtd -= $qtd;
+    public function removerEstoque($qtd)
+    {
+        
+        if($this->qtd < 0){
+            $this->qtd = 0;
+        } else {
+            $this->qtd -= $qtd;
+        }
     }
 
     public function __toString()
@@ -31,12 +37,16 @@ class Instrumento
 
     public function CalcularTotal($carrinho)
     {
-        $total = 0;
-        foreach ($carrinho as $c) {
-            $total += $c->getPreco();
+        $totalGeral = 0;
+
+        foreach ($carrinho as $dados) {
+            $instrumento = $dados['item'];
+            $quantidade = $dados['quantidade'];
+            $subtotal = $instrumento->getPreco() * $quantidade;
+            $totalGeral += $subtotal;
         }
 
-        return $total;
+        return $totalGeral;
     }
 
 
@@ -88,4 +98,21 @@ class Instrumento
         return $this;
     }
 
+    /**
+     * Get the value of qtd
+     */
+    public function getQtd()
+    {
+        return $this->qtd;
+    }
+
+    /**
+     * Set the value of qtd
+     */
+    public function setQtd($qtd): self
+    {
+        $this->qtd = $qtd;
+
+        return $this;
+    }
 }

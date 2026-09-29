@@ -4,8 +4,9 @@ require_once("Instrumento.php");
 require_once("Palheta.php");
 
 class Sopro extends Instrumento{
-
-    private Palheta $palheta;
+//Coloquei o tipo do atributo como ?Palheta porque assim ele aceita valores nulos
+//Alguns instrumentos de sopro não utilizam palheta, mas o tipo Palheta obriga o php a devolver um objeto não-nulo, por isso coloquei o ?
+    private ?Palheta $palheta;
     private string $material;
     private string $familia;
 

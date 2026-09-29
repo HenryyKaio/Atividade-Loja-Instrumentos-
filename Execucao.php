@@ -3,6 +3,7 @@
 require_once("modelo/Tecla.php");
 require_once("modelo/Corda.php");
 require_once("modelo/Sopro.php");
+require_once("modelo/Comprador.php");
 
 $instrumentos = [
     "Teclas" => [
@@ -24,6 +25,9 @@ $instrumentos = [
 ];
 
 $carrinho = array();
+$cadastroFeito = false;
+$cliente = "";
+
 
 echo "Bem vindo ao sistema automatizado da nossa loja!\n";
 echo "O que você deseja fazer por aqui hoje?\n";
@@ -36,6 +40,7 @@ do {
     echo "[4] Ver carrinho\n";
     echo "[5] Remover do carrinho\n";
     echo "[6] Pagar instrumento(s)\n";
+    echo "[7] Ver saldo disponível\n";
     echo "[0] Sair\n";
     $opcao = readline();
 
@@ -43,54 +48,53 @@ do {
 
 
         case '1':
-            $cliente = new Comprador;
-            $clinte->setNome(readline("Qual é o seu primeiro nome? "));
-            $cliente->setSobrenome(readline("Qual é o seu sobrenome? "));
-            echo "Cadastro realizado com sucesso! \n";
+            if ($cadastroFeito == false) {
+                $cliente = new Comprador();
+                $cliente->setNome(readline("Qual é o seu nome? "));
+                $cliente->setSaldo(readline("Qual é o seu saldo? "));
+                echo "Seu cadastro foi feito com sucesso!\n";
+                $cadastroFeito = true;
+            } else {
+                echo "Você já possui um cadastro!\n";
+            }
+
             break;
 
 
         case '2':
-            echo "Temos alguns instrumentos no estoque da loja, mas se você quiser um que não temos, você pode encomendar ele\n";
-            echo "O que temos disponível são esses:                                                                        " . $cliente . "\n";
-            echo "========================================\n";
-            echo "       MENU DE INSTRUMENTOS MUSICAIS    \n";
-            echo "========================================\n\n";
-
-            $contador = 1;
-
-            foreach ($instrumentosObj as $categoria => $lista) {
-                echo "--- Categoria: {$categoria} ---\n";
-
-                foreach ($lista as $instrumento) {
-                    // Exibindo SOMENTE os atributos herdados de Instrumento
-                    $nome = $instrumento->getNome();
-                    $marca = $instrumento->getMarca();
-                    $modelo = $instrumento->getModelo();
-                    $preco = number_format($instrumento->getPreco(), 2, ',', '.');
-                    $qtd = $instrumento->getQtd();
-
-                    echo "[$contador] {$nome} | Marca: {$marca} | Modelo: {$modelo} | Preço: R$ {$preco} | Estoque: {$qtd}\n";
-
-                    $contador++;
+            if($cadastroFeito == false) {
+                echo "Você precisa fazer um cadastro primeiro!\n";
+            } else {
+                echo "Temos alguns instrumentos no estoque da loja, mas se você quiser um que não temos, você pode encomendar ele\n";
+                echo "O que temos disponível são esses:              \n";
+                echo "========================================\n";
+                echo "       MENU DE INSTRUMENTOS MUSICAIS    \n";
+                echo "========================================\n\n";
+    
+                foreach ($instrumentos as $categoria => $lista) {
+                    echo "--- Categoria: {$categoria} ---\n";
+                    foreach ($lista as $instrumento) {
+                        $nome = $instrumento->getNome();
+                        $marca = $instrumento->getMarca();
+                        $modelo = $instrumento->getModelo();
+                        $preco = number_format($instrumento->getPreco(), 2, ',', '.');
+                        $qtd = $instrumento->getQtd();
+    
+                        echo " {$nome} | Marca: {$marca} | Modelo: {$modelo} | Preço: R$ {$preco} | Estoque: {$qtd}\n";
+                    }
+                    echo "\n";
                 }
-                echo "\n";
+    
+                echo "========================================\n";
+                echo "Qual você quer? (se prefere encomendar algum digite 0): \n";
+                $escolhaInst = readline();
+                echo "Quantos você quer?\n";
+                $qtdInst = readline();
+                $instrumentoEncontrado = buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst);
+                if ($instrumentoEncontrado) {
+                    adicionarAoCarrinho($carrinho, $instrumentoEncontrado, $qtdInst);
+                }
             }
-
-            echo "========================================\n";
-            echo "Qual você quer? (se prefere encomendar algum digite 0): \n";
-            $escolhaInst = readline();
-            echo "Quantos você quer?\n";
-            $qtdInst = readline();
-            $instrumentoEncontrado = buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst);
-            if ($instrumentoEncontrado) {
-                adicionarAoCarrinho($carrinho, $instrumentoEncontrado, $qtdInst);
-            }
-
-
-
-
-
             break;
 
         case '3':
@@ -101,31 +105,36 @@ do {
             $qtd = readline("Quantos você quer comprar?");
             $instrumento = new Instrumento($nome, $marca, $modelo, $preco, $qtd);
             echo "Pronto, seu instrumento foi encomendado e adicionado ao carrinho\n";
-            if($saldo < $preco) {
+            if ($cliente->getSaldo() < $preco) {
                 echo "Você não tem saldo suficiente para esse pedido\n";
             } else {
-                array_push($carrinho, $instrumento);
+               adicionarAoCarrinho($carrinho, $instrumento, $qtd);
             }
 
 
             break;
 
         case '4':
-            foreach ($carrinho as $i => $inst) {
-                echo "$cliente->getNome()" . "$cliente->getSobrenome()" . " compra Nº: $i+=1: $inst\n";
-            }
+            $i = 1;
+        foreach ($carrinho as $dados) {
+            $inst = $dados['item'];
+            $qtd = $dados['quantidade'];
+            echo $cliente->getNome() . " " . " | Compra Nº " . $i . " - " . $qtd . "x " . $inst->getNome() . " (" . $inst->getMarca() . " " . $inst->getModelo() . ") - R$ " . number_format($inst->getPreco(), 2, ',', '.') . "\n";
+            $i++;
+        }
             break;
 
         case '5':
             $indiceRemov = readline("Qual é o número da compra que você deseja remover do carrinho? ");
-            array_splice($carrinho, $indiceRemov, 1);
+            array_splice($carrinho, $indiceRemov-1, 1);
             echo "Compra removida com sucesso!\n";
             break;
 
         case '6':
             echo "Muito bem! Vamos finalizar as compras.\n";
-            echo "Suas compras deram um total de R$" . $instrumento->CalcularTotal($carrinho) . "\n";
-            if ($cliente->getSaldo() < $instrumento->CalcularTotal($carrinho)) {
+            $totalGasto = CalcularTotal($carrinho);
+            echo "Suas compras deram um total de R$" . $totalGasto . "\n";
+            if ($cliente->getSaldo() < $totalGasto) {
                 echo "Você não tem saldo o suficiente para comprar tudo. Por favor remova algum item da lista.\n";
             } else {
                 echo "Finalizando a compra";
@@ -134,7 +143,15 @@ do {
                     sleep(0.5);
                 }
                 echo "\nCompra realizada com sucesso! Volte sempre!\n";
+                $opcao = 0;
             }
+            break;
+
+        case '7':
+            $totalGasto = CalcularTotal($carrinho);
+            $saldoDisponivel = $cliente->getSaldo() - $totalGasto;
+            echo $cliente->getNome() . "\nSaldo disponível: " . $saldoDisponivel;
+            echo "\nO total gasto no seu carrinho é " . $totalGasto . "\n";
             break;
 
 
@@ -148,14 +165,14 @@ do {
     }
 } while ($opcao != 0);
 
-function buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst)
+function buscarEAtualizarEstoque(&$instrumentos, $escolhaInst, $qtdInst)
 {
     foreach ($instrumentos as $categoria => $lista) {
         foreach ($lista as $i => $instrumento) {
             // Professor utilizei essa função que compara duas strings ignorando maiusculas ou minúsculas, ela retorna 0 se for verdadeiro
             // Então se o if for === 0, isto é, o valor e o tipo de dado igual, ele segue com o que está dentro
-            if (strcasecmp($instrumento->getNome(), $escolhaInst)) {
-                if ($instrumento->getQtd() <= $qtdInst) {
+            if (strcasecmp($instrumento->getNome(), $escolhaInst) === 0) {
+                if ($instrumento->getQtd() >= $qtdInst) {
                     $instrumento->removerEstoque($qtdInst);
                     return $instrumento;
                 } else {
@@ -170,7 +187,7 @@ function buscarEAtualizarEstoque($instrumentos, $escolhaInst, $qtdInst)
     return null;
 }
 
-function adicionarAoCarrinho($carrinho, $instrumento, $qtdInst = 1)
+function adicionarAoCarrinho(&$carrinho, $instrumento, $qtdInst = 1)
 {
     $nome = $instrumento->getNome();
 
@@ -183,3 +200,18 @@ function adicionarAoCarrinho($carrinho, $instrumento, $qtdInst = 1)
         ];
     }
 }
+
+function CalcularTotal($carrinho)
+    {
+        $totalGeral = 0;
+
+        foreach ($carrinho as $dados) {
+            $instrumento = $dados['item'];
+            $quantidade = $dados['quantidade'];
+            $subtotal = $instrumento->getPreco() * $quantidade;
+            $totalGeral += $subtotal;
+        }
+
+        return $totalGeral;
+    }
+
