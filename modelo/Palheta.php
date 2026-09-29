@@ -1,11 +1,17 @@
 <?php
 
-class Palheta{
-    private string $marca;
-    private int $tamanho;
-    private string $tipo;
+class Palheta
+{
+    private $marca;
+    private $tamanho;
+    private $tipo;
 
-    
+    public function __construct($marca, $tamanho, $tipo)
+    {
+        $this->marca = $marca;
+        $this->tamanho = $tamanho;
+        $this->tipo = $tipo;
+    }
 
     public function getMarca(): string
     {

@@ -1,13 +1,22 @@
 <?php
 
-class Instrumento {
+class Instrumento
+{
 
-    protected float $preco;
-    protected string $nome;
-    protected string $marca;
-    protected string $modelo;
-    protected int $qtd;
+    protected $preco;
+    protected $nome;
+    protected $marca;
+    protected $modelo;
+    protected $qtd;
 
+    public function __construct($nome, $marca, $modelo, $preco, $qtd)
+    {
+        $this->nome = $nome;
+        $this->marca = $marca;
+        $this->modelo = $modelo;
+        $this->preco = $preco;
+        $this->qtd = $qtd;
+    }
 
     public function __toString()
     {
@@ -16,15 +25,16 @@ class Instrumento {
         return $dados;
     }
 
-    public function CalcularTotal($carrinho){
+    public function CalcularTotal($carrinho)
+    {
         $total = 0;
-        foreach($carrinho as $c){
-            $total += $c->getPreco(); 
+        foreach ($carrinho as $c) {
+            $total += $c->getPreco();
         }
 
         return $total;
     }
-    
+
 
     public function getPreco(): float
     {

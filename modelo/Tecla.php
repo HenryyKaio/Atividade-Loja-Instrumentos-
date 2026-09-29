@@ -6,6 +6,10 @@ class Tecla extends Instrumento{
 
     private int $qtdTeclas;
 
+    public function __construct($nome, $marca, $modelo, $preco, $qtd, $qtdTeclas) {
+        parent::__construct($nome, $marca, $modelo, $preco, $qtd);
+        $this->qtdTeclas = $qtdTeclas;
+    }
     
 
 

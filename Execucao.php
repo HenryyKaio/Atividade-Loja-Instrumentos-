@@ -6,20 +6,20 @@ require_once("modelo/Sopro.php");
 
 $instrumentos = [
     "Teclas" => [
-        ["nome" => "Piano", "marca" => "Yamaha", "modelo" => "U1"],
-        ["nome" => "Órgão", "marca" => "Hammond", "modelo" => "B3"],
-        ["nome" => "Sintetizador", "marca" => "Moog", "modelo" => "Sub 37"]
+        new Tecla("Piano", "Yamaha", "U1", 15000.00, 3, 88),
+        new Tecla("Órgão", "Hammond", "B3", 22000.00, 1, 61),
+        new Tecla("Sintetizador", "Moog", "Sub 37", 8500.00, 5, 37)
     ],
     "Cordas" => [
-        ["nome" => "Violão", "marca" => "Taylor", "modelo" => "214ce"],
-        ["nome" => "Guitarra", "marca" => "Fender", "modelo" => "Stratocaster"],
-        ["nome" => "Violino", "marca" => "Stradivarius", "modelo" => "Messiah"],
-        ["nome" => "Violoncelo", "marca" => "Cremona", "modelo" => "SC-165"]
+        new Corda("Violão", "Taylor", "214ce", 4500.00, 10, 6, "Aço", 0),
+        new Corda("Guitarra", "Fender", "Stratocaster", 7000.00, 4, 6, "Níquel", 3),
+        new Corda("Violino", "Stradivarius", "Messiah", 50000.00, 1, 4, "Tripa", 0),
+        new Corda("Violoncelo", "Cremona", "SC-165", 6000.00, 2, 4, "Aço", 0)
     ],
     "Sopro" => [
-        ["nome" => "Flauta", "marca" => "Yamaha", "modelo" => "YFL-222"],
-        ["nome" => "Saxofone", "marca" => "Selmer", "modelo" => "Mark VI"],
-        ["nome" => "Trompete", "marca" => "Bach", "modelo" => "Stradivarius 180S37"]
+        new Sopro("Flauta", "Yamaha", "YFL-222", 3500.00, 6, "Prata", "Madeiras", null),
+        new Sopro("Saxofone", "Selmer", "Mark VI", 18000.00, 2, "Latão", "Madeiras", new Palheta("Vandoren", "2.5", "Cana")),
+        new Sopro("Trompete", "Bach", "Stradivarius 180S37", 12000.00, 3, "Metal", "Metais", null)
     ]
 ];
 
@@ -53,47 +53,45 @@ do {
         case '2':
             echo "Temos alguns instrumentos no estoque da loja, mas se você quiser um que não temos, você pode encomendar ele\n";
             echo "O que temos disponível são esses:                                                                            $cliente\n";
-            echo "========================================================\n";
-            echo "                 MENU DE INSTRUMENTOS                   \n";
-            echo "========================================================\n";
+            echo "========================================\n";
+            echo "       MENU DE INSTRUMENTOS MUSICAIS    \n";
+            echo "========================================\n\n";
 
-            $numero = 1;
+            $contador = 1;
 
-            foreach ($instrumentos as $categoria => $lista) {
-                echo "\n--- $categoria ---\n";
-                foreach ($lista as $item) {
-                    echo sprintf(
-                        "  [%2d] %-13s | Marca: %-12s | Modelo: %s\n",
-                        $numero,
-                        $item['nome'],
-                        $item['marca'],
-                        $item['modelo']
-                    );
-                    $numero++;
+            foreach ($instrumentosObj as $categoria => $lista) {
+                echo "--- Categoria: {$categoria} ---\n";
+
+                foreach ($lista as $instrumento) {
+                    // Exibindo SOMENTE os atributos herdados de Instrumento
+                    $nome = $instrumento->getNome();
+                    $marca = $instrumento->getMarca();
+                    $modelo = $instrumento->getModelo();
+                    $preco = number_format($instrumento->getPreco(), 2, ',', '.');
+                    $qtd = $instrumento->getQtd();
+
+                    echo "[$contador] {$nome} | Marca: {$marca} | Modelo: {$modelo} | Preço: R$ {$preco} | Estoque: {$qtd}\n";
+
+                    $contador++;
                 }
+                echo "\n";
             }
 
-            echo "\n========================================================\n";
+            echo "========================================\n";
             echo "Qual você quer? (se prefere encomendar algum digite 0): \n";
             $escolha = readline();
-            if($escolha > 0 and $escolha < 4) {
-                $teclado = new Tecla;
-
-            } else if($escolha < 8 and $escolha > 3){
-
-            } else if($escolha < 11 and $escolha > 7) {
-                echo "Você deseja comprar uma palheta também? \n";
-            }
+            
 
 
             break;
 
         case '3':
-            $instrumento = new Instrumento;
-            $instrumento->setNome(readline("Qual o nome do instrumento você deseja encomendar? "));
-            $instrumento->setMarca(readline("De qual marca ele é? "));
-            $instrumento->setModelo(readline("Qual é o modelo? "));
-            $instrumento->setPreco(readline("Qual é o preço base dele?") * 1.25 + 100);
+            $nome = readline("Qual o nome do instrumento você deseja encomendar? ");
+            $marca = readline("De qual marca ele é? ");
+            $modelo = readline("Qual é o modelo? ");
+            $preco = (readline("Qual é o preço base dele?") * 1.25 + 100);
+            $qtd = readline("Quantos você quer comprar?");
+            $instrumento = new Instrumento($nome, $marca, $modelo, $preco, $qtd);
             echo "Pronto, seu instrumento foi encomendado e adicionado ao carrinho\n";
 
             array_push($carrinho, $instrumento);

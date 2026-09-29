@@ -9,6 +9,13 @@ class Corda extends Instrumento{
     private string $materialCorda;
     private int $qtdCaptadores;
 
+    public function __construct($nome, $marca, $modelo, $preco, $qtd, $qtdCordas, $materialCorda, $qtdCaptadores) {
+        parent::__construct($nome, $marca, $modelo, $preco, $qtd);
+        $this->qtdCordas = $qtdCordas;
+        $this->materialCorda = $materialCorda;
+        $this->qtdCaptadores = $qtdCaptadores;
+    }
+
     public function getQtdCordas(): int
     {
         return $this->qtdCordas;

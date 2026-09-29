@@ -9,7 +9,12 @@ class Sopro extends Instrumento{
     private string $material;
     private string $familia;
 
-    
+    public function __construct($nome, $marca, $modelo, $preco, $qtd, $material, $familia, ?Palheta $palheta = null) {
+        parent::__construct($nome, $marca, $modelo, $preco, $qtd);
+        $this->material = $material;
+        $this->familia = $familia;
+        $this->palheta = $palheta;
+    }
 
 
     public function getPalheta(): Palheta
